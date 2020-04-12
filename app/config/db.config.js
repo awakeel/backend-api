@@ -1,6 +1,23 @@
-module.exports = {
-  HOST: "us-cdbr-iron-east-02.cleardb.net",
-  USER: "b7e24378878xxx",
-  PASSWORD: "0200exxx",
-  DB: "heroku_7643ec736354xxx"
-};
+require("dotenv").config()
+const Sequelize = require("sequelize")
+// Option 1: Passing parameters separately
+const sequelize = new Sequelize(
+  process.env.DB_DATABASE,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect:
+      process.env
+        .DIALECT /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
+  }
+)
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Connection has been established successfully.")
+  })
+  .catch(err => {
+    console.error("Unable to connect to the database:", err)
+  })
+module.exports = { sequelize, Sequelize }
