@@ -1,14 +1,14 @@
 module.exports = (sequelize, DataTypes) => {
-  const subBrands = sequelize.define(
-    "subBrands",
+  const sub = sequelize.define(
+    "sub",
     {
       title: DataTypes.STRING,
     },
     {}
   )
-  subBrands.associate = function(models) {
-    subBrands.belongsTo(models.brands)
-    subBrands.hasMany(models.car)
+  sub.associate = function (models) {
+    sub.belongsTo(models.brands)
+    sub.hasMany(models.car)
   }
-  return subBrands
+  return sub
 }

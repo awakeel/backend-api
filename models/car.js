@@ -15,12 +15,15 @@ module.exports = (sequelize, DataTypes) => {
       quantity: DataTypes.INTEGER,
       specifications: DataTypes.STRING,
       terms: DataTypes.INTEGER,
+      brandId: DataTypes.INTEGER,
+      subId: DataTypes.INTEGER,
+      quantity: DataTypes.INTEGER,
     },
     {}
   )
-  car.associate = function(models) {
+  car.associate = function (models) {
     car.belongsTo(models.brands)
-    car.belongsTo(models.subBrands)
+    car.belongsTo(models.sub)
   }
   return car
 }

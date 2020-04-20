@@ -8,8 +8,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   )
-  Brands.associate = function(models) {
-    Brands.hasMany(models.subBrands)
+  Brands.associate = function (models) {
+    Brands.hasMany(models.sub)
     Brands.hasMany(models.car)
   }
   return Brands

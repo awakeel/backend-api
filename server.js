@@ -1,15 +1,16 @@
 const express = require("express")
+const path = require("path")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 const app = express()
-const getAll = require("./controllers/subBrands")
 
 var debug = require("debug")("express-sequelize")
-var http = require("http")
-var models = require("./models")
+
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
-
+//const uploadPath = path.join(__di c(__dirname + "/public"))
+app.use("/uploads", express.static(__dirname + "/public/uploads"))
+//app.use("/uploads", express.__dirname(__dirname + "/public/uploads"))
 // Cross domain
 
 app.use(cors())
@@ -22,11 +23,12 @@ app.get("/", (req, res, next) => {
   next()
 })
 
-app.get("*", require("./routes"))
+app.use("/api/", require("./routes"))
+//app.use("/api/", require("./routes"))
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3000
-app.listen(PORT, function() {
+app.listen(PORT, function () {
   debug("Express server listening on port " + PORT)
 })
 app.on("error", onError)
