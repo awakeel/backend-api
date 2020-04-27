@@ -3,27 +3,13 @@ const path = require("path")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 const app = express()
-
 var debug = require("debug")("express-sequelize")
-
-// parse requests of content-type - application/json
 app.use(bodyParser.json())
-//const uploadPath = path.join(__di c(__dirname + "/public"))
 app.use("/uploads", express.static(__dirname + "/public/uploads"))
-//app.use("/uploads", express.__dirname(__dirname + "/public/uploads"))
-// Cross domain
-
 app.use(cors())
-
-// parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }))
 
-// simple route
-app.get("/", (req, res, next) => {
-  next()
-})
-
-app.use("/api/", require("./routes"))
+app.use("/api/", [require("./routes"), require("./routes/login")])
 //app.use("/api/", require("./routes"))
 
 // set port, listen for requests
@@ -53,6 +39,19 @@ function onError(error) {
     default:
       throw error
   }
+}
+function authenticate(req, res, next) {
+  const authHeader = req.headers["authorization"]
+  console.log(authHeader)
+  const token = authHeader && authHeader.split(" ")[1]
+  console.log(token)
+  if (token == null) return res.sendStatus(401)
+  jwt.verify(token, "ACESS TOKEN", (error, user) => {
+    if (error) return res.sendStatus(403)
+
+    req.user = user
+    next()
+  })
 }
 function onListening() {
   var addr = server.address()

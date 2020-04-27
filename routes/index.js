@@ -1,4 +1,6 @@
-const { sub, brands, car, Sequelize, sequelize } = require("../models")
+const { banks, sub, brands, car, Sequelize, sequelize } = require("../models")
+const { getCarById } = require("../controllers/car")
+const { getBanks } = require("../controllers/banks")
 var express = require("express")
 var multer = require("multer")
 const storage = multer.diskStorage({
@@ -30,11 +32,13 @@ router.get("/config", function (req, res) {
   })
 })
 router.route("/car").post(function (req, res) {
-  console.log(req.body)
   car
     .create({ ...req.body })
-    .then(() => {
-      res.json("Car added succesfuly.")
+    .then((a) => {
+      console.log(a)
+      getCarById(a.id).then((data) => {
+        res.json(data[0])
+      })
     })
     .error((data) => {
       res.json(data)
@@ -55,9 +59,11 @@ router.get("/brands", function (req, res) {
 })
 router.get("/subbrands", function (req, res) {
   const brandId = req.query.brandId
+
   sub
     .findAll({
       attributes: ["id", ["title", "sub"], "brandid"],
+      where: { brandId: brandId },
     })
     .then(function (sub) {
       res.json(sub)
@@ -68,6 +74,17 @@ router.get("/subbrands", function (req, res) {
 })
 
 router.get("/cars", function (req, res) {
+  const filters = {}
+  const query = req.query
+  let sort = "DESC"
+  if (req.query) {
+    query.brand ? (filters["brandId"] = query.brand) : ""
+    query.sub ? (filters["subId"] = query.sub) : ""
+    query.city ? (filters["city"] = query.city) : ""
+    query.color ? (filters["color"] = query.color) : ""
+    query.year ? (filters["model"] = query.year) : ""
+    query.sort == "1" ? (sort = "ASC") : "DESC"
+  }
   car
     .findAll({
       include: [
@@ -80,9 +97,13 @@ router.get("/cars", function (req, res) {
           attributes: [["title", "sub"]],
         },
       ],
+      where: filters,
+      order: [["createdAt", sort]],
     })
     .then(function (cars) {
+      //setTimeout(function () {
       res.json(cars)
+      //}, 2000)
     })
     .catch((err) => {
       throw err
@@ -90,26 +111,17 @@ router.get("/cars", function (req, res) {
 })
 router.get("/car/:id", function (req, res) {
   const id = req.params.id
-  car
-    .findAll({
-      include: [
-        {
-          model: brands,
-          attributes: [["title", "brand"], "cls"],
-        },
-        {
-          model: sub,
-          attributes: [["title", "sub"]],
-          aliases: "sub",
-        },
-      ],
-      where: { id: id },
-    })
+  getCarById(id)
     .then(function (cars) {
       res.json(cars)
     })
     .catch((err) => {
       throw err
     })
+})
+router.get("/banks", function (req, res) {
+  getBanks().then((result) => {
+    res.json(result)
+  })
 })
 module.exports = router
